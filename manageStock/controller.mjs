@@ -1,6 +1,6 @@
-import { en } from 'zod/v4/locales';
-import { ServerError } from '../error.mjs';
-import { DB_ERR_CODES, prisma } from '../prisma/db.mjs';
+import { en } from "zod/v4/locales";
+import { ServerError } from "../error.mjs";
+import { DB_ERR_CODES, prisma } from "../prisma/db.mjs";
 
 const getProducts = async (req, res, next) => {
   // const products = await prisma.product.findMany();
@@ -12,17 +12,17 @@ const getProducts = async (req, res, next) => {
           select: { quantity: true },
         },
         entry: {
-          orderBy: { entryDate: 'desc' },
+          orderBy: { date: "desc" },
           take: 1, // get only the latest entry (for latest price)
           select: { price: true, quantity: true },
         },
       },
     });
 
-    res.json({ message: 'Products retrieved successfully', products });
+    res.json({ message: "Products retrieved successfully", products });
   } catch (error) {
     console.error(error);
-    throw new ServerError(500, 'unable to fetch products');
+    throw new ServerError(500, "unable to fetch products");
   }
 };
 
@@ -36,7 +36,7 @@ const getAllInventory = async (req, res, next) => {
             category: true,
             minQuantity: true,
             entry: {
-              orderBy: { entryDate: 'desc' },
+              orderBy: { date: "desc" },
               take: 1, // get only the latest entry (for latest price)
               select: { price: true },
             },
@@ -45,30 +45,10 @@ const getAllInventory = async (req, res, next) => {
       },
     });
 
-    res.json({ message: 'All inventories', inventories });
+    res.json({ message: "All inventories", inventories });
   } catch (error) {
     console.error(error);
-    throw new ServerError(500, 'unable to fetch inventories');
-  }
-};
-
-const getAllUsers = async (req, res, next) => {
-  try {
-    const allUsers = await prisma.user.findMany({
-      include: {
-        _count: {
-          select: {
-            entry: true,
-            exit: true,
-          },
-        },
-      },
-    });
-
-    res.json({ message: 'All Team Members', allUsers });
-  } catch (error) {
-    console.log(error);
-    throw new ServerError(500, 'unable to fetch users');
+    throw new ServerError(500, "unable to fetch inventories");
   }
 };
 
@@ -84,7 +64,7 @@ const getAllEntries = async (req, res, next) => {
           product: { select: { name: true } },
           user: { select: { id: true, name: true } },
         },
-        orderBy: { entryDate: 'desc' },
+        orderBy: { date: "desc" },
         skip,
         take: limit,
       }),
@@ -92,7 +72,7 @@ const getAllEntries = async (req, res, next) => {
     ]);
 
     res.json({
-      message: 'Entries fetched successfully',
+      message: "Entries fetched successfully",
       data: entries,
       pagination: {
         totalItems: totalCount,
@@ -103,7 +83,7 @@ const getAllEntries = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    next(new ServerError(500, 'Unable to fetch entries'));
+    next(new ServerError(500, "Unable to fetch entries"));
   }
 };
 
@@ -119,7 +99,7 @@ const getAllExits = async (req, res, next) => {
           product: { select: { name: true } },
           user: { select: { id: true, name: true } },
         },
-        orderBy: { exitDate: 'desc' },
+        orderBy: { date: "desc" },
         skip,
         take: limit,
       }),
@@ -127,7 +107,7 @@ const getAllExits = async (req, res, next) => {
     ]);
 
     res.json({
-      message: 'Exits fetched successfully',
+      message: "Exits fetched successfully",
       data: exits,
       pagination: {
         totalItems: totalCount,
@@ -138,7 +118,7 @@ const getAllExits = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    next(new ServerError(500, 'Unable to fetch exits'));
+    next(new ServerError(500, "Unable to fetch exits"));
   }
 };
 
@@ -170,13 +150,13 @@ const addProduct = async (req, res, next) => {
 
     // Step 3: Respond
     res.json({
-      message: 'Product and inventory created successfully',
+      message: "Product and inventory created successfully",
       product,
       inventory,
     });
   } catch (error) {
-    console.error('Error adding product:', error);
-    next(error);
+    console.error("Error adding product:", error);
+    next(new ServerError(500, "unable to add product"));
   }
 };
 
@@ -199,10 +179,10 @@ const productEntry = async (req, res, next) => {
       });
     });
 
-    res.json({ message: 'Product entry recorded successfully', newEntry });
+    res.json({ message: "Product entry recorded successfully", newEntry });
   } catch (error) {
     console.log(error);
-    throw new ServerError(500, 'unable to record product entry');
+    next(new ServerError(500, "unable to record product entry"));
   }
 };
 
@@ -219,7 +199,7 @@ const productExit = async (req, res, next) => {
       });
 
       if (!inventory || inventory.quantity < quantity) {
-        throw new Error('Not enough stock to remove');
+        throw new Error("Not enough stock to remove");
       }
 
       const exit = await tx.exit.create({
@@ -234,17 +214,16 @@ const productExit = async (req, res, next) => {
       return exit;
     });
 
-    res.json({ message: 'Product exit recorded successfully', exitItem });
+    res.json({ message: "Product exit recorded successfully", exitItem });
   } catch (error) {
     console.log(error);
-    throw new ServerError(500, 'unable to record product exit');
+    next(new ServerError(500, "unable to record product exit"));
   }
 };
 
 export {
   getProducts,
   getAllInventory,
-  getAllUsers,
   getAllEntries,
   getAllExits,
   addProduct,
