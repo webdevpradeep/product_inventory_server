@@ -1,4 +1,5 @@
 
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -50,7 +51,7 @@ model Entry {
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int      @default(0)
   price     Float    @default(0)
-  entryDate DateTime @default(now())
+  date      DateTime @default(now())
   notes     String?
   addedBy   Int
   user      User     @relation(fields: [addedBy], references: [id])
@@ -62,7 +63,7 @@ model Exit {
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int      @default(0)
   price     Float    @default(0)
-  exitDate  DateTime @default(now())
+  date      DateTime @default(now())
   reason    String?
   removedBy Int
   user      User     @relation(fields: [removedBy], references: [id])
